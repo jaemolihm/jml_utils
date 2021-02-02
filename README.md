@@ -6,7 +6,7 @@ See header of each file for the detailed usage.
 ### First-principle calculations - utilities
 * `epw_pp.py`: Modified version of EPW `pp.py`.
 * `kmesh.pl`: Modified version of Wannier90 `kmesh.pl`.
-* `my_qe_bands.py`: Python port of `bands.x` of Quantum ESPRESSO.
+* `my_qe_bands.py`: Python port (partial) of `bands.x` of Quantum ESPRESSO.
 * `qe_parse_energy.py`: Parse band energies from xml file and save as numpy for Quantum ESPRESSO.
 * `degeneracy\_check.py`: Check band degeneracy over all k points. (Adapted from BerkeleyGW.)
 
