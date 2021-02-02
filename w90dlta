@@ -1,0 +1,11 @@
+#!/bin/bash
+
+grep DLTA *wout | awk '{print $(NF-2)}' > dlta.txt
+
+/usr/bin/gnuplot -e "set logscale y; plot 'dlta.txt' u 0:(-\$1) w lp; pause -1"
+
+if [ -z "$1" ]; then
+  rm dlta.txt
+fi
+
+

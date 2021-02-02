@@ -1,0 +1,5 @@
+#!/bin/bash
+lastmodfile=$(ls -t1 *out | head -n 1)
+echo "===========$lastmodfile=========="
+tail $lastmodfile
+
