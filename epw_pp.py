@@ -42,6 +42,24 @@ def hasSOC(prefix, outdir):
     else:
         raise ValueError('Problem in hasSOC')
 
+
+# check if calculation used xml files (irrelevant of presence of SOC)
+def hasXML(prefix, dyndir):
+    # check for a file named prefix.dyn1.xml
+    # if it exists => return True else return False
+    fname = os.path.join(dyndir, prefix + ".dyn1.xml")
+    if os.path.isfile(fname):
+        return True
+    # check if the other without .xml extension exists
+    # if not raise an error
+    fname_no_xml = fname.strip(".xml")
+
+    if not os.path.isfile(fname_no_xml):
+        raise FileNotFoundError(
+                "No dyn1 file found cannot tell if xml format was used.")
+    return False
+
+
 # Check if the calculation was done in sequential
 def isSEQ(prefix, outdir):
     fname = f'{outdir}/' + '_ph0/'+str(prefix)+'.dvscf'
@@ -73,24 +91,37 @@ else:
 # Test if SOC
 SOC = hasSOC(prefix, outdir)
 
+# Test if XML
+XML = hasXML(prefix, dyndir)
+
 # Test if seq. or parallel run
 SEQ = isSEQ(prefix, outdir)
 
 # gets nqpt from the output files
-nqpt =  get_nqpt(prefix, outdir)
+nqpt = get_nqpt(prefix, outdir)
 
-os.system('mkdir save 2>/dev/null')
+# Delete temporary wavefunction file
+os.system(f'rm -f {outdir}/_ph*/{prefix}.q_*/*wfc*')
+
+# For image parallization
+if os.path.isdir(f'{outdir}/_ph1'):
+    # Move all output data to _ph0
+    os.system(f'mv {outdir}/_ph[1-9]*/{prefix}.q_*/ {outdir}/_ph0/')
+    # Remove image parallelized output folders
+    os.system(f'rm -rf {outdir}/_ph[1-9]*/')
+
+os.system('mkdir -p save')
 
 # Copy dynamical matrix and force constant files
-if SOC:
-    do_copy(f'{dyndir}/{prefix}.dyn0', f'{prefix}.dyn0.xml')
+if XML:
+    do_copy(f'{dyndir}/{prefix}.dyn0', f'{dyndir}/{prefix}.dyn0.xml')
     do_copy(f'{prefix}.fc.xml', 'save/ifc.q2r.xml')
 else:
     do_copy(f'{prefix}.fc', 'save/ifc.q2r')
 
 for iqpt in np.arange(1, nqpt+1):
     label = str(iqpt)
-    if SOC:
+    if XML:
         do_copy(f'{dyndir}/{prefix}.dyn{iqpt}.xml', f'save/{prefix}.dyn_q{label}.xml')
     else:
         do_copy(f'{dyndir}/{prefix}.dyn{iqpt}', f'save/{prefix}.dyn_q{label}')
