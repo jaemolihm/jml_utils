@@ -1,11 +1,16 @@
 #!/bin/bash
 
-grep DLTA *wout | awk '{print $(NF-2)}' > dlta.txt
+if [ -z "$1" ]; then
+  grep DLTA *wout | awk '{print $(NF-2)}' > dlta.txt
+else
+  grep DLTA $1 | awk '{print $(NF-2)}' > dlta.txt
+fi
 
 /usr/bin/gnuplot -e "set logscale y; plot 'dlta.txt' u 0:(-\$1) w lp; pause -1"
 
-if [ -z "$1" ]; then
-  rm dlta.txt
-fi
+rm dlta.txt
+#if [ -z "$1" ]; then
+#  rm dlta.txt
+#fi
 
 
