@@ -15,11 +15,13 @@ def get_nk(filename):
     return nk
 
 def parse_efermi_or_evbm(filename):
-    # TODO: Parse metal
+    # TODO: parse VBM & CBM
     with open(filename, 'r') as f:
         for line in f:
             if "highest occupied level" in line:
                 return float(line.split()[-1])
+            if "the Fermi energy is" in line:
+                return float(line.split()[-2])
     return None
 
 prefix = sys.argv[1].strip()
