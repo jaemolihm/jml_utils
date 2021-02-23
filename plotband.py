@@ -67,10 +67,13 @@ if os.path.isfile(filename_label):
     high_sym_k = []
     high_sym_label = []
     with open(filename_label, 'r') as f:
-        data = f.readline().split()
-        high_sym_label += [data[0]]
-        high_sym_k += [float(data[2])]
-    high_sym_label = ["$\Gamma$" if x.lower() == 'gamma' else x for x in high_sym_label]
+        for line in f:
+            if line.strip() == "":
+                break
+            data = line.split()
+            high_sym_label += [data[0]]
+            high_sym_k += [float(data[2])]
+    high_sym_label = ["$\Gamma$" if x.lower() in ['gamma', 'g'] else x for x in high_sym_label]
 
     for ax in axes:
         ax.set_xticks(high_sym_k)
