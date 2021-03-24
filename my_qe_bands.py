@@ -16,6 +16,7 @@ import xml.etree.ElementTree as ET
 import numpy as np
 
 hartree_to_ev = lambda x: float(x) * 27.21138602
+bohr_to_ang = lambda x: float(x) * 0.529177249
 
 def parse_bandsdata(xml_file):
     from copy import copy
@@ -26,12 +27,14 @@ def parse_bandsdata(xml_file):
     # parse xml file
     tree = ET.parse(xml_file)
     root = tree.getroot()
+    alat = float(root.find('.//atomic_structure').get('alat'))
     ecutwfc = hartree_to_ev(root.find('.//ecutwfc').text)
     ecutrho = hartree_to_ev(root.find('.//ecutrho').text)
     nelec = int(round(float(root.find('.//nelec').text)))
     nbnd = int(round(float(root.find('.//nbnd').text)))
     nks = int(round(float(root.find('.//nks').text)))
     lsda = root.find('.//lsda').text.strip().lower() == 'true'
+    bandsdata['alat'] = alat
     bandsdata['ecutwfc'] = ecutwfc
     bandsdata['ecutrho'] = ecutrho
     bandsdata['dual'] = ecutrho / ecutwfc

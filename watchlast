@@ -4,7 +4,9 @@ if [ -z "$1" ]; then
   lastmodfile=$(ls -t1 *out | head -n 1)
   file=$lastmodfile
 else
-  file=$1
+  lastmodfile=$(ls -t1 $1 | head -n 1)
+  file=$lastmodfile
+  #file=$1
 fi
 watch -n 2 "tail -$(($(tput lines) - 2)) $file"
 

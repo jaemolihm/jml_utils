@@ -29,6 +29,7 @@ prefix = sys.argv[1].strip()
 filename_w90 = f"{prefix}_band.dat"
 filename_pw = f"{prefix}.bands.dat.gnu"
 filename_label = f"{prefix}_band.labelinfo.dat"
+filename_label_pw = f"plotband.out"
 filename_scf = "scf.out"
 
 fig, axes = plt.subplots(1, 2, figsize=(8, 4))
@@ -63,9 +64,11 @@ if os.path.isfile(filename_pw):
         ax.set_xlim([min(xkplot_pw), max(xkplot_pw)])
 
 # Special k points
+high_sym_k = []
+high_sym_label = []
+
 if os.path.isfile(filename_label):
-    high_sym_k = []
-    high_sym_label = []
+    # Read high-symmetry k point labels from Wannier90 output
     with open(filename_label, 'r') as f:
         for line in f:
             if line.strip() == "":
@@ -74,7 +77,18 @@ if os.path.isfile(filename_label):
             high_sym_label += [data[0]]
             high_sym_k += [float(data[2])]
     high_sym_label = ["$\Gamma$" if x.lower() in ['gamma', 'g'] else x for x in high_sym_label]
+elif os.path.isfile(filename_label_pw):
+    # Read high-symmetry k point labels from my_qe_bands.py output
+    with open(filename_label_pw, 'r') as f:
+        for line in f:
+            if 'high-symmetry point:' in line:
+                high_sym_k += [float(line.split()[-1])]
+                high_sym_label += ['.']
+else:
+    # Skip high-symmetry k points
+    pass
 
+if len(high_sym_k) > 0:
     for ax in axes:
         ax.set_xticks(high_sym_k)
         ax.set_xticklabels(high_sym_label)
