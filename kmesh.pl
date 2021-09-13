@@ -33,7 +33,7 @@ if ($numargs==3) {
     for ($x=0; $x<$ARGV[0]; $x++) {
 	for ($y=0; $y<$ARGV[1]; $y++) {
 	    for ($z=0; $z<$ARGV[2]; $z++) {
-		printf ("%12.8f%12.8f%12.8f%14.6e\n", $x/$ARGV[0],$y/$ARGV[1],$z/$ARGV[2],1/$totpts);
+		printf ("%16.12f%16.12f%16.12f%16.8e\n", $x/$ARGV[0],$y/$ARGV[1],$z/$ARGV[2],1/$totpts);
 	    }
 	}
     }
@@ -46,7 +46,7 @@ if ($numargs==4) {
     for ($x=0; $x<$ARGV[0]; $x++) {
 	for ($y=0; $y<$ARGV[1]; $y++) {
 	    for ($z=0; $z<$ARGV[2]; $z++) {
-		printf ("%12.8f%12.8f%12.8f\n", $x/$ARGV[0],$y/$ARGV[1],$z/$ARGV[2]);
+		printf ("%16.12f%16.12f%16.12f\n", $x/$ARGV[0],$y/$ARGV[1],$z/$ARGV[2]);
 	    }
 	}
     }
