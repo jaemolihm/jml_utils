@@ -77,6 +77,7 @@ if os.path.isfile(filename_label):
             high_sym_label += [data[0]]
             high_sym_k += [float(data[2])]
     high_sym_label = ["$\Gamma$" if x.lower() in ['gamma', 'g'] else x for x in high_sym_label]
+    high_sym_label = ["$\Sigma$" if x.lower() == 'sigma' else x for x in high_sym_label]
 elif os.path.isfile(filename_label_pw):
     # Read high-symmetry k point labels from my_qe_bands.py output
     with open(filename_label_pw, 'r') as f:
