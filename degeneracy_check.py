@@ -25,7 +25,7 @@ if __name__ == '__main__':
         raise ValueError
     xmlfile = outdir + '/' + seedname + '.xml'
 
-    is_lsda, nbnd, nk, weight, energy = parse_energy(xmlfile)
+    is_lsda, nbnd, nk, weight, energy, occupations, xk = parse_energy(xmlfile)
     if is_lsda:
         raise NotImplementedError
     nspin = 2 if is_lsda else 1
@@ -48,4 +48,4 @@ if __name__ == '__main__':
     for ib in range(nbnd):
         if no_degeneracy[ib]:
             print(f"{ib + 1:8d}")
-    print(f"Note: cannot assess whether or not highest band {nbnd} is degenerate.")
+    print(f"Note: cannot assess whether or not the highest band {nbnd} is degenerate.")

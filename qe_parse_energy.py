@@ -76,3 +76,4 @@ if __name__ == '__main__':
     print("number of k points: ", nk)
 
     np.save('energy_' + prefix, energy)
+    # np.save('xk_' + prefix, xk)

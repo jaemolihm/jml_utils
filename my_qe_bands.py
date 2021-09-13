@@ -83,7 +83,7 @@ def punch_plottable_bands(bandsdata, gnu_file):
             k2 = kpts[:,ik+1] - kpts[:,ik]
             if np.linalg.norm(k1) < 1.E-4 or np.linalg.norm(k2) < 1.E-4:
                 sys.stdout.write('punch_plottable_bands: two consecutive same k, exiting\n')
-                raise
+                raise ValueError()
             ps = np.dot(k1, k2) / (np.linalg.norm(k1) * np.linalg.norm(k2))
             high_symmetry[ik] = abs(ps-1.0) > 1.E-4 # If kink, then high symmetry
 
