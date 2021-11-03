@@ -56,7 +56,8 @@ if os.path.isfile(filename_pw):
     data_pw = np.loadtxt(filename_pw).reshape((-1, nk_pw, 2))
     xkplot_pw = data_pw[0, :, 0]
     e_pw = data_pw[:, :, 1]
-    xkplot_pw *= xkplot_w90[-1] / xkplot_pw[-1]
+    xk_pw_to_w90_convert = xkplot_w90[-1] / xkplot_pw[-1]
+    xkplot_pw *= xk_pw_to_w90_convert
 
     for ax in axes:
         for ib in range(e_pw.shape[0]):
@@ -67,6 +68,10 @@ if os.path.isfile(filename_pw):
 high_sym_k = []
 high_sym_label = []
 
+# Try to append prefix to filename_label_pw
+if (not os.path.isfile(filename_label_pw)) and os.path.isfile(f"{prefix}.{filename_label_pw}"):
+    filename_label_pw = f"{prefix}.{filename_label_pw}"
+
 if os.path.isfile(filename_label):
     # Read high-symmetry k point labels from Wannier90 output
     with open(filename_label, 'r') as f:
@@ -76,18 +81,22 @@ if os.path.isfile(filename_label):
             data = line.split()
             high_sym_label += [data[0]]
             high_sym_k += [float(data[2])]
-    high_sym_label = ["$\Gamma$" if x.lower() in ['gamma', 'g'] else x for x in high_sym_label]
-    high_sym_label = ["$\Sigma$" if x.lower() == 'sigma' else x for x in high_sym_label]
 elif os.path.isfile(filename_label_pw):
     # Read high-symmetry k point labels from my_qe_bands.py output
     with open(filename_label_pw, 'r') as f:
         for line in f:
             if 'high-symmetry point:' in line:
-                high_sym_k += [float(line.split()[-1])]
-                high_sym_label += ['.']
+                high_sym_k += [float(line.split()[7])]
+                if len(line.split()) == 9:
+                    high_sym_label += [line.split()[8]]
+                else:
+                    high_sym_label += ['.']
+    high_sym_k = [x * xk_pw_to_w90_convert for x in high_sym_k]
 else:
     # Skip high-symmetry k points
     pass
+high_sym_label = ["$\Gamma$" if x.lower() in ['gamma', 'g'] else x for x in high_sym_label]
+high_sym_label = ["$\Sigma$" if x.lower() == 'sigma' else x for x in high_sym_label]
 
 if len(high_sym_k) > 0:
     for ax in axes:
