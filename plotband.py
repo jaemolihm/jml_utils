@@ -9,6 +9,7 @@ def get_nk(filename):
     with open(filename, 'r') as f:
         nk = 0
         for line in f:
+            if line[0] == "#": continue
             if line.strip() == "":
                 break
             nk += 1
@@ -51,16 +52,31 @@ else:
 
 # DFT bands
 if os.path.isfile(filename_pw):
-    nk_pw = get_nk(filename_pw)
+    # Read LSDA information if present.
+    with open(filename_pw, "r") as f:
+        line = f.readline()
+        if "# LSDA" in line:
+            lsda = True
+            nbnd_up, nbnd_dw = [int(x) for x in line.split()[-2:]]
+        else:
+            lsda = False
 
+    nk_pw = get_nk(filename_pw)
     data_pw = np.loadtxt(filename_pw).reshape((-1, nk_pw, 2))
     xkplot_pw = data_pw[0, :, 0]
     e_pw = data_pw[:, :, 1]
     xkplot_pw *= xkplot_w90[-1] / xkplot_pw[-1]
+    nbnd = e_pw.shape[0]
 
     for ax in axes:
-        for ib in range(e_pw.shape[0]):
-            lines = ax.plot(xkplot_pw, e_pw[ib, :], 'k-', label='DFT' if ib==0 else None, zorder=1)
+        if lsda:
+            for ib in range(nbnd_up):
+                lines = ax.plot(xkplot_pw, e_pw[ib, :], 'k-', label='DFT spin up' if ib==0 else None, zorder=1)
+            for ib in range(nbnd_up, nbnd_up + nbnd_dw):
+                lines = ax.plot(xkplot_pw, e_pw[ib, :], 'b-', label='DFT spin down' if ib==nbnd_up else None, zorder=1)
+        else:
+            for ib in range(nbnd):
+                lines = ax.plot(xkplot_pw, e_pw[ib, :], 'k-', label='DFT' if ib==0 else None, zorder=1)
         ax.set_xlim([min(xkplot_pw), max(xkplot_pw)])
 
 # Special k points

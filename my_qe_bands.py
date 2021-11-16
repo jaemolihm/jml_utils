@@ -30,23 +30,32 @@ def parse_bandsdata(xml_file):
     alat = float(root.find('.//atomic_structure').get('alat'))
     ecutwfc = hartree_to_ev(root.find('.//ecutwfc').text)
     ecutrho = hartree_to_ev(root.find('.//ecutrho').text)
+    lsda = root.find('.//lsda').text.strip().lower() == "true"
     nelec = int(round(float(root.find('.//nelec').text)))
-    nbnd = int(round(float(root.find('.//nbnd').text)))
+    if lsda:
+        nbnd_up = int(round(float(root.find('.//nbnd_up').text)))
+        nbnd_dw = int(round(float(root.find('.//nbnd_dw').text)))
+        nbnd = nbnd_up + nbnd_dw
+        bandsdata['nbnd_up'] = nbnd_up
+        bandsdata['nbnd_dw'] = nbnd_dw
+        bandsdata['nbnd'] = nbnd
+    else:
+        nbnd = int(round(float(root.find('.//nbnd').text)))
+        bandsdata['nbnd'] = nbnd
     nks = int(round(float(root.find('.//nks').text)))
-    lsda = root.find('.//lsda').text.strip().lower() == 'true'
     bandsdata['alat'] = alat
     bandsdata['ecutwfc'] = ecutwfc
     bandsdata['ecutrho'] = ecutrho
     bandsdata['dual'] = ecutrho / ecutwfc
     bandsdata['nelec'] = nelec
-    bandsdata['nbnd'] = nbnd
     bandsdata['nks'] = nks
+    bandsdata['lsda'] = lsda
 
     nspin = 2 if lsda else 1
 
     node_band = root.find('.//band_structure')
-    band_energies = np.zeros((nks, nbnd * nspin))
-    occupations = np.zeros((nks, nbnd * nspin))
+    band_energies = np.zeros((nks, nbnd))
+    occupations = np.zeros((nks, nbnd))
     iks = 0
     for node_ks in node_band.findall('ks_energies'):
         band_energies[iks,:] = [hartree_to_ev(x) for x in node_ks.find('eigenvalues').text.split()]
@@ -150,6 +159,8 @@ def punch_plottable_bands(bandsdata, gnu_file):
             npoints[nlines-1] = npoints[nlines-1] + 1
 
     with open(gnu_file, 'w') as f:
+        if bandsdata["lsda"]:
+            f.write(f'# LSDA : nbnd_up, nbnd_dw = {bandsdata["nbnd_up"]} {bandsdata["nbnd_dw"]}\n')
         for ib in range(nbnd):
             for ik in range(nks):
                 f.write("{0:10.4f} {1:10.4f}\n".format(kx_plot[ik], bandsdata['band_energies'][ik,ib]))
