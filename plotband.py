@@ -20,9 +20,11 @@ def parse_efermi_or_evbm(filename):
     with open(filename, 'r') as f:
         for line in f:
             if "highest occupied level" in line:
-                return float(line.split()[-1])
+                return float(line.split()[-1]), None
             if "the Fermi energy is" in line:
-                return float(line.split()[-2])
+                return float(line.split()[-2]), None
+            if "highest occupied, lowest unoccupied level" in line:
+                return float(line.split()[-2]), float(line.split()[-1])
     return None
 
 prefix = sys.argv[1].strip()
@@ -113,11 +115,16 @@ if len(high_sym_k) > 0:
 
 # Fermi level
 if os.path.isfile(filename_scf):
-    efermi = parse_efermi_or_evbm(filename_scf)
-    if efermi is not None:
+    # efermi1: E_VBM (insulator) or Fermi energy (metal)
+    # efermi2: E_CBM (insulator) or None (metal)
+    efermi1, efermi2 = parse_efermi_or_evbm(filename_scf)
+    if efermi1 is not None:
         for ax in axes:
-            ax.axhline(y=efermi, c='b', lw=1)
-        axes[1].set_ylim([efermi - 2.0, efermi + 2.0])
+            ax.axhline(y=efermi1, c='b', lw=1)
+        axes[1].set_ylim([efermi1 - 2.0, efermi1 + 2.0])
+    if efermi2 is not None:
+        for ax in axes:
+            ax.axhline(y=efermi2, c='g', lw=1)
 
 axes[0].set_ylabel("Energy (eV)")
 axes[0].legend()
