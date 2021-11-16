@@ -27,6 +27,19 @@ def parse_efermi_or_evbm(filename):
                 return float(line.split()[-2]), float(line.split()[-1])
     return None
 
+def merge_multiple_high_sym_labels(high_sym_k, high_sym_label):
+    high_sym_k_new = [high_sym_k[0]]
+    high_sym_label_new = [high_sym_label[0]]
+    for i in range(1, len(high_sym_k)):
+        if abs(high_sym_k[i] - high_sym_k_new[-1]) > 1e-5:
+            # label at different x
+            high_sym_k_new += [high_sym_k[i]]
+            high_sym_label_new += [high_sym_label[i]]
+        else:
+            # label at same x
+            high_sym_label_new[-1] += "|" + high_sym_label[i]
+    return high_sym_k_new, high_sym_label_new
+
 prefix = sys.argv[1].strip()
 
 filename_w90 = f"{prefix}_band.dat"
@@ -105,6 +118,9 @@ elif os.path.isfile(filename_label_pw):
 else:
     # Skip high-symmetry k points
     pass
+
+# If there are multiple high-symmetry labels on the same k, merge them
+high_sym_k, high_sym_label = merge_multiple_high_sym_labels(high_sym_k, high_sym_label)
 
 if len(high_sym_k) > 0:
     for ax in axes:
