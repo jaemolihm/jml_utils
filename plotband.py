@@ -130,7 +130,8 @@ high_sym_label = ["$\Gamma$" if x.lower() in ['gamma', 'g'] else x for x in high
 high_sym_label = ["$\Sigma$" if x.lower() == 'sigma' else x for x in high_sym_label]
 
 # If there are multiple high-symmetry labels on the same k, merge them
-high_sym_k, high_sym_label = merge_multiple_high_sym_labels(high_sym_k, high_sym_label)
+if high_sym_label:
+    high_sym_k, high_sym_label = merge_multiple_high_sym_labels(high_sym_k, high_sym_label)
 
 if len(high_sym_k) > 0:
     for ax in axes:
