@@ -16,16 +16,18 @@ def get_nk(filename):
     return nk
 
 def parse_efermi_or_evbm(filename):
-    # TODO: parse VBM & CBM
+    # Return the last found value because when using hybrid functions, Fermi energy is
+    # printed multiple times and the last one is the one for the converged bands.
+    out = None
     with open(filename, 'r') as f:
         for line in f:
             if "highest occupied level" in line:
-                return float(line.split()[-1]), None
+                out = float(line.split()[-1]), None
             if "the Fermi energy is" in line:
-                return float(line.split()[-2]), None
+                out = float(line.split()[-2]), None
             if "highest occupied, lowest unoccupied level" in line:
-                return float(line.split()[-2]), float(line.split()[-1])
-    return None
+                out = float(line.split()[-2]), float(line.split()[-1])
+    return out
 
 def merge_multiple_high_sym_labels(high_sym_k, high_sym_label):
     high_sym_k_new = [high_sym_k[0]]
