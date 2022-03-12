@@ -9,6 +9,7 @@ import sys
 import numpy as np
 from qe_parse_energy import parse_energy
 
+hartree_to_ev = lambda x: float(x) * 27.21138602
 degeneracy_tol = 1E-6 # Ry
 
 if __name__ == '__main__':
@@ -49,3 +50,6 @@ if __name__ == '__main__':
         if no_degeneracy[ib]:
             print(f"{ib + 1:8d}")
     print(f"Note: cannot assess whether or not the highest band {nbnd} is degenerate.")
+
+    print()
+    print(f"Minimum energy of the highest band = {hartree_to_ev(np.amin(energy[-1, :]))} eV")
