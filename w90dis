@@ -1,7 +1,6 @@
 #!/bin/bash
 
-#grep DIS *wout | tail -n+7 | awk '{ print $(NF-3) }' > dis.txt
-grep DIS *wout | tail -n+8 | awk '{ print $(NF-3) }' > dis.txt
+grep " <-- DIS" *wout | awk '{ print $(NF-3) }' > dis.txt
 
 /usr/bin/gnuplot -e "set logscale y; plot 'dis.txt' u 0:(\$1) w lp t 'descending', 'dis.txt' u 0:(-\$1) w lp t 'ascending'; pause -1"
 
