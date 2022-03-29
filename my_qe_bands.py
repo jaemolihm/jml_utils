@@ -148,7 +148,7 @@ def punch_plottable_bands(bandsdata, gnu_file):
                 nlines = nlines + 1
                 if nlines > MAX_LINES:
                     sys.stdout.write('punch_plottable_bands: too many lines, exiting\n')
-                    raise
+                    raise ValueError()
                 npoints[nlines-1] = 1
                 point[nlines-1] = ik + 1
             sys.stdout.write("high-symmetry point: {0:7.4f} {1:7.4f} {2:7.4f}".format(kpts[0,ik], kpts[1,ik], kpts[2,ik]))
@@ -185,7 +185,7 @@ if __name__ == "__main__":
         outdir = sys.argv[2]
     except IndexError:
         sys.stdout.write("Input file is not given (The standard bands.x input file)\n")
-        raise
+        raise IndexError()
     if outdir[-1] != '/':
         outdir += '/'
     filband = f"{prefix}.bands.dat"
@@ -196,7 +196,7 @@ if __name__ == "__main__":
         sys.stdout.write('filband : {}\n'.format(filband))
     except NameError:
         sys.stdout.write("Error in reading input file: standard bands.x input format is needed\n")
-        raise
+        raise NameError()
 
     # parse xml file
     #xml_file = os.path.join(outdir, prefix+'.xml')
@@ -204,12 +204,12 @@ if __name__ == "__main__":
     print(xml_file)
     if not os.path.exists(xml_file):
         sys.stdout.write("Error in xml file: file does not exist\n")
-        raise
+        raise ValueError()
     try:
         bandsdata = parse_bandsdata(xml_file)
     except:
         sys.stdout.write("Error in reading xml file\n")
-        raise
+        raise ValueError()
 
     # Write high-symmetry k-points: the "poor man's algorithm" in bands.x
     gnu_file = os.path.join(filband+'.gnu')
