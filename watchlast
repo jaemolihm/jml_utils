@@ -1,12 +1,9 @@
 #!/bin/bash
 set -e
 if [ -z "$1" ]; then
-  lastmodfile=$(ls -t1 *out | head -n 1)
-  file=$lastmodfile
+  # Tail last modified *.out file full screen
+  watch -n 2 "ls -t1 *out | head -n 1 | xargs tail -$(($(tput lines) - 2))"
 else
-  lastmodfile=$(ls -t1 $1 | head -n 1)
-  file=$lastmodfile
-  #file=$1
+  # Tail $1 file full screen
+  watch -n 2 "tail $1 -$(($(tput lines) - 2))"
 fi
-watch -n 2 "tail -$(($(tput lines) - 2)) $file"
-
