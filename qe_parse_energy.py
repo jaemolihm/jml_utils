@@ -75,5 +75,5 @@ if __name__ == '__main__':
     print("number of bands: ", nbnd)
     print("number of k points: ", nk)
 
-    np.save('energy_' + prefix, energy)
+    np.savez('energy_and_xk_' + prefix, energy=energy, xk=xk)
     # np.save('xk_' + prefix, xk)
