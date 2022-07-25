@@ -46,9 +46,12 @@ if __name__ == '__main__':
 
     print()
     print('== Degeneracy-allowed numbers of bands ==')
+    print('number of bands / Max energy of the included bands / Min energy of the excluded bands')
     for ib in range(nbnd):
         if no_degeneracy[ib]:
-            print(f"{ib + 1:8d}")
+            print(f"{ib + 1:8d}", end="")
+            print(f"{hartree_to_ev(np.amax(energy[ib, :])):10.2f} eV", end="")
+            print(f"{hartree_to_ev(np.amin(energy[ib+1, :])):10.2f} eV")
     print(f"Note: cannot assess whether or not the highest band {nbnd} is degenerate.")
 
     print()
