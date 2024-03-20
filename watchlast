@@ -5,5 +5,5 @@ if [ -z "$1" ]; then
   watch -n 2 "ls -t1 *out | head -n 1 | xargs tail --verbose -n $(($(tput lines) - 3))"
 else
   # Tail $1 file full screen
-  watch -n 2 "tail $1 -$(($(tput lines) - 2))"
+  watch -n 2 "tail -$(($(tput lines) - 2)) $1"
 fi

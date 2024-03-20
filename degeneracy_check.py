@@ -56,3 +56,10 @@ if __name__ == '__main__':
 
     print()
     print(f"Minimum energy of the highest band = {hartree_to_ev(np.amin(energy[-1, :]))} eV")
+
+    print()
+    print(f"Minimum / Maximum energy of the bands [eV]")
+    for ib in range(nbnd):
+        emin = hartree_to_ev(np.amin(energy[ib, :]))
+        emax = hartree_to_ev(np.amax(energy[ib, :]))
+        print(f"{ib+1:5d}  {emin:10.5f}   ~ {emax:10.5f}")
