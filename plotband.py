@@ -2,6 +2,7 @@
 
 import sys
 import os.path
+import argparse
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -42,7 +43,14 @@ def merge_multiple_high_sym_labels(high_sym_k, high_sym_label):
             high_sym_label_new[-1] += "|" + high_sym_label[i]
     return high_sym_k_new, high_sym_label_new
 
-prefix = sys.argv[1].strip()
+
+# Parse input arguments
+parser=argparse.ArgumentParser()
+parser.add_argument("prefix")
+parser.add_argument("--pdf", action='store_true')
+args = parser.parse_args()
+prefix = args.prefix
+write_pdf = args.pdf
 
 filename_w90 = f"{prefix}_band.dat"
 filename_pw = f"{prefix}.bands.dat.gnu"
@@ -157,4 +165,6 @@ if os.path.isfile(filename_scf):
 
 axes[0].set_ylabel("Energy (eV)")
 axes[0].legend()
+if write_pdf:
+    plt.savefig(f"{prefix}_band.pdf")
 plt.show()
