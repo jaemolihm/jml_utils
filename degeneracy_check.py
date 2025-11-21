@@ -37,9 +37,11 @@ if __name__ == '__main__':
     print(f"Number of k-points:{nk:13d}")
 
     no_degeneracy = [False] * nbnd
+    gap_list = [0.0] * nbnd
 
     for ib in range(nbnd - 1):
         gap = np.min(energy[ib+1, :] - energy[ib, :])
+        gap_list[ib] = gap
         if gap > degeneracy_tol:
             no_degeneracy[ib] = True
 
@@ -51,7 +53,8 @@ if __name__ == '__main__':
         if no_degeneracy[ib]:
             print(f"{ib + 1:8d}", end="")
             print(f"{hartree_to_ev(np.amax(energy[ib, :])):10.2f} eV", end="")
-            print(f"{hartree_to_ev(np.amin(energy[ib+1, :])):10.2f} eV")
+            print(f"{hartree_to_ev(np.amin(energy[ib+1, :])):10.2f} eV", end="")
+            print(f"   (gap = {hartree_to_ev(gap_list[ib]):6.2f} eV)")
     print(f"Note: cannot assess whether or not the highest band {nbnd} is degenerate.")
 
     print()
