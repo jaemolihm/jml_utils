@@ -5,9 +5,25 @@
 # 14/03/2018 - Automatically reads the number of q-points - Michael Waters
 # 14/03/2018 - Detect if SOC is included in the calculation - Samuel Ponce
 #
+# Usage:
+#   epw_pp.py [prefix] [--outdir OUTDIR] [--dyndir DYNDIR]
+#
+# Arguments:
+#   prefix              Prefix used for PH calculations (e.g. diam)
+#                       If not provided, will prompt interactively
+#
+# Options:
+#   --outdir OUTDIR     Output directory containing PH results (default: temp)
+#   --dyndir DYNDIR     Directory containing dynamical matrices (default: dyn_dir)
+#
+# Examples:
+#   epw_pp.py diam
+#   epw_pp.py diam --outdir my_temp --dyndir my_dyn
+#   epw_pp.py --outdir custom_temp --dyndir custom_dyn
+#
 import sys
-import numpy as np
 import os
+import argparse
 from xml.dom import minidom
 
 # Return the number of q-points in the IBZ
@@ -46,18 +62,17 @@ def hasSOC(prefix, outdir):
 # check if calculation used xml files (irrelevant of presence of SOC)
 def hasXML(prefix, dyndir):
     # check for a file named prefix.dyn1.xml
-    # if it exists => return True else return False
     fname = os.path.join(dyndir, prefix + ".dyn1.xml")
     if os.path.isfile(fname):
         return True
-    # check if the other without .xml extension exists
-    # if not raise an error
-    fname_no_xml = fname.strip(".xml")
 
-    if not os.path.isfile(fname_no_xml):
-        raise FileNotFoundError(
-                "No dyn1 file found cannot tell if xml format was used.")
-    return False
+    # check for a file named prefix.dyn1
+    fname_no_xml = os.path.join(dyndir, prefix + ".dyn1")
+    if os.path.isfile(fname_no_xml):
+        return False
+
+    # Both prefix.dyn1.xml and prefix.dyn1 do not exsit.
+    raise FileNotFoundError("No dyn1.xml or dyn1 file found.")
 
 
 # Check if the calculation was done in sequential
@@ -77,16 +92,21 @@ def do_copy(file_from, file_to, is_folder=False):
     else:
         os.system(f'cp {file_from} {file_to}')
 
-outdir = 'temp'
-dyndir = 'dyn_dir'
+# Parse command line arguments
+parser = argparse.ArgumentParser(description='Post-processing script for PH data in format used by EPW')
+parser.add_argument('prefix', nargs='?', help='Prefix used for PH calculations (e.g. diam)')
+parser.add_argument('--outdir', default='temp', help='Output directory (default: temp)')
+parser.add_argument('--dyndir', default='dyn_dir', help='Dynamical matrix directory (default: dyn_dir)')
+args = parser.parse_args()
 
-# Enter the number of irr. q-points
-if len(sys.argv) == 2:
-    prefix = sys.argv[1].strip()
-    # dummy = input()
+if args.prefix:
+    prefix = args.prefix.strip()
 else:
     user_input = input('Enter the prefix used for PH calculations (e.g. diam)\n')
     prefix = str(user_input)
+
+outdir = args.outdir
+dyndir = args.dyndir
 
 # Test if SOC
 SOC = hasSOC(prefix, outdir)
@@ -119,7 +139,7 @@ if XML:
 else:
     do_copy(f'{prefix}.fc', 'save/ifc.q2r')
 
-for iqpt in np.arange(1, nqpt+1):
+for iqpt in range(1, nqpt+1):
     label = str(iqpt)
     if XML:
         do_copy(f'{dyndir}/{prefix}.dyn{iqpt}.xml', f'save/{prefix}.dyn_q{label}.xml')
@@ -137,7 +157,7 @@ elif SEQ and SOC:
 else:
     postfix = ''
 
-for iqpt in np.arange(1, nqpt+1):
+for iqpt in range(1, nqpt+1):
     label = str(iqpt)
 
     dvscf_to = f'save/{prefix}.dvscf_q{label}'
