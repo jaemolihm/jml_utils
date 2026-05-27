@@ -23,6 +23,7 @@
 #
 import sys
 import os
+import glob
 import argparse
 from xml.dom import minidom
 
@@ -120,15 +121,23 @@ SEQ = isSEQ(prefix, outdir)
 # gets nqpt from the output files
 nqpt = get_nqpt(prefix, outdir)
 
+
+# ====== Cleanup ph.x output folders in outdir ======
+
 # Delete temporary wavefunction file
 os.system(f'rm -f {outdir}/_ph*/{prefix}.q_*/*wfc*')
 
-# For image parallization
+# For image parallization, move all data from _ph1, _ph2, ... into _ph0
 if os.path.isdir(f'{outdir}/_ph1'):
-    # Move all output data to _ph0
-    os.system(f'mv {outdir}/_ph[1-9]*/{prefix}.q_*/ {outdir}/_ph0/')
-    # Remove image parallelized output folders
-    os.system(f'rm -rf {outdir}/_ph[1-9]*/')
+    # Merge each image-parallelized output folder into _ph0, then remove it.
+    for d in sorted(glob.glob(f'{outdir}/_ph[1-9]*/')):
+        os.system(f'rsync -a --remove-source-files {d} {outdir}/_ph0/')
+        os.system(f'rm -rf {d}')
+
+# Remove prefix.save copied into each q-point folder which are not needed after ph.x.
+os.system(f'rm -rf {outdir}/_ph0/{prefix}.q_*/{prefix}.save')
+
+# ====== Copy data into save folder for EPW ======
 
 os.system('mkdir -p save')
 
