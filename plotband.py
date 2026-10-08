@@ -50,16 +50,27 @@ if __name__ == "__main__":
     parser.add_argument("prefix")
     parser.add_argument("--pdf", action='store_true')
     parser.add_argument("--png", action='store_true')
+    parser.add_argument('--ymin', help="Energy below Fermi level to show", default=-2.0, type=float)
+    parser.add_argument('--ymax', help="Energy above Fermi level to show", default=2.0, type=float)
     args = parser.parse_args()
     prefix = args.prefix
     write_pdf = args.pdf
     write_png = args.png
+    ymin = args.ymin
+    ymax = args.ymax
 
     filename_w90 = f"{prefix}_band.dat"
     filename_pw = f"{prefix}.bands.dat.gnu"
     filename_label = f"{prefix}_band.labelinfo.dat"
     filename_label_pw = f"plotband.out"
+
+    # SCF filename is "scf.out" or "{prefix}.scf.out"
     filename_scf = "scf.out"
+    if not os.path.isfile(filename_scf):
+        if os.path.isfile(f"{prefix}.scf.out"):
+            filename_scf = f"{prefix}.scf.out"
+        else:
+            filename_scf = None
 
     fig, axes = plt.subplots(1, 2, figsize=(8, 4))
 
@@ -73,7 +84,7 @@ if __name__ == "__main__":
 
         for ax in axes:
             for ib in range(e_w90.shape[0]):
-                lines = ax.plot(xkplot_w90, e_w90[ib, :], 'r--', label='W90' if ib==0 else None, zorder=3)
+                lines = ax.plot(xkplot_w90, e_w90[ib, :], 'r--', label='W90' if ib==0 else None, zorder=3, lw=1)
             ax.set_xlim([min(xkplot_w90), max(xkplot_w90)])
     else:
         xkplot_w90 = [1.0]
@@ -154,14 +165,14 @@ if __name__ == "__main__":
                 ax.axvline(x=x, c='k', lw=1, ls='--')
 
     # Fermi level
-    if os.path.isfile(filename_scf):
+    if filename_scf is not None:
         # efermi1: E_VBM (insulator) or Fermi energy (metal)
         # efermi2: E_CBM (insulator) or None (metal)
         efermi1, efermi2 = parse_efermi_or_evbm(filename_scf)
         if efermi1 is not None:
             for ax in axes:
                 ax.axhline(y=efermi1, c='b', lw=1)
-            axes[1].set_ylim([efermi1 - 2.0, efermi1 + 2.0])
+            axes[1].set_ylim([efermi1 + ymin, efermi1 + ymax])
         if efermi2 is not None:
             for ax in axes:
                 ax.axhline(y=efermi2, c='g', lw=1)
@@ -169,7 +180,9 @@ if __name__ == "__main__":
     axes[0].set_ylabel("Energy (eV)")
     axes[0].legend()
     if write_pdf:
+        print(f"Writing PDF : {prefix}_band.pdf")
         plt.savefig(f"{prefix}_band.pdf")
     if write_png:
-        plt.savefig(f"{prefix}_band.png")
+        print(f"Writing PNG : {prefix}_band.png")
+        plt.savefig(f"{prefix}_band.png", dpi=300)
     plt.show()
