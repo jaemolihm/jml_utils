@@ -135,7 +135,8 @@ if os.path.isdir(f'{outdir}/_ph1'):
         os.system(f'rm -rf {d}')
 
 # Remove prefix.save copied into each q-point folder which are not needed after ph.x.
-os.system(f'rm -rf {outdir}/_ph0/{prefix}.q_*/{prefix}.save')
+# JML: It seems the charge density in this save folder is needed for e-ph postprocessing via QE
+# os.system(f'rm -rf {outdir}/_ph0/{prefix}.q_*/{prefix}.save')
 
 # ====== Copy data into save folder for EPW ======
 
